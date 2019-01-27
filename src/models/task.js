@@ -96,6 +96,22 @@ export default class Task {
 		this._modified = this.vtodo.getFirstPropertyValue('last-modified')
 		this._created = this.vtodo.getFirstPropertyValue('created')
 
+		let sortOrder = this.vtodo.getFirstPropertyValue('x-apple-sort-order')
+		if (sortOrder === null) {
+			sortOrder = this._created.subtractDate(
+				new ICAL.Time({
+					year: 2001,
+					month: 1,
+					day: 1,
+					hour: 0,
+					minute: 0,
+					second: 0,
+					isDate: false
+				})
+			).toSeconds()
+		}
+		this._sortOrder = sortOrder
+
 		this._searchQuery = ''
 		this._matchesSearchQuery = true
 	}
@@ -443,6 +459,29 @@ export default class Task {
 		this.vtodo.updatePropertyWithValue('created', createdDate)
 		this.updateLastModified()
 		this._created = this.vtodo.getFirstPropertyValue('created')
+	}
+
+	get sortOrder() {
+		return this._sortOrder
+	}
+
+	set sortOrder(sortOrder) {
+		if (sortOrder === null) {
+			sortOrder = this._created.subtractDate(
+				new ICAL.Time({
+					year: 2001,
+					month: 1,
+					day: 1,
+					hour: 0,
+					minute: 0,
+					second: 0,
+					isDate: false
+				})
+			).toSeconds()
+		}
+		this.vtodo.updatePropertyWithValue('x-apple-sort-order', sortOrder)
+		this.updateLastModified()
+		this._sortOrder = sortOrder
 	}
 
 	/**
